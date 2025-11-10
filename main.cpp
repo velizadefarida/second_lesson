@@ -39,6 +39,7 @@ int main()
   catch (const std::bad_alloc()) {
     return 2;
   }
+  return 0;
 }
 
 IntArray::~IntArray() {
@@ -76,5 +77,5 @@ void IntArray::add(int i)
   }
   delete[] a;
   a = tmp;
-  ++k
+  ++k;
 }
