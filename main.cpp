@@ -173,7 +173,7 @@ IntArray & IntArray::operator=(const IntArray & rhs)
     delete[] a;
     a = tmp;
     size = rhs.getSize();
-    return * this; //то, что слева
+    return * this;
   }
 }
 
@@ -184,9 +184,6 @@ size(rhs.getSize())
   rhs.a = nullptr;
 }
 
-//IntArray c (std::move(b)) перемещение
-//IntArray p (a) копирование
-
 IntArray & IntArray::operator=(IntArray && rhs)
 {
   delete[] a;
@@ -194,4 +191,58 @@ IntArray & IntArray::operator=(IntArray && rhs)
   size = rhs.size;
   rhs.a = nullptr;
   return * this;
+}
+
+int main(int argc, char* argv[]) {
+  if (argc != 2) {
+    return 1;
+  }
+
+  std::ifstream file(argv[1]);
+  if (!file) {
+    return 1;
+  }
+
+  size_t rows, cols;
+  if (!(file >> rows >> cols)) {
+    return 1;
+  }
+
+  try {
+    IntMatrix matrix(rows, cols);
+
+    for (size_t i = 0; i < rows; ++i) {
+      for (size_t j = 0; j < cols; ++j) {
+        int value;
+        if (!(file >> value)) {
+          return 1;
+        }
+        matrix.setValue(i, j, value);
+      }
+    }
+
+    int cmd, param1, param2;
+    while (std::cin >> cmd >> param1 >> param2) {
+      if (cmd == 1) {
+        matrix.addRowAfter(param1, param2);
+        matrix.print();
+      }
+      else if (cmd == 3) {
+        matrix.addRowAndColumnAfter(param1, param2);
+        matrix.print();
+      }
+      else {
+        return 3;
+      }
+    }
+
+    if (std::cin.fail() && !std::cin.eof()) {
+      return 1;
+    }
+  }
+  catch (...) {
+    return 2;
+  }
+
+  return 0;
 }
