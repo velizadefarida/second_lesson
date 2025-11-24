@@ -10,39 +10,111 @@ struct IntArray {
   int * a;
   size_t size;
   int at(size_t id()) const;
-  IntArray(const IntArray & rhs); //конструктор копирования
-  IntArray & operator=(const IntArray & rhs); //оператор копирующего присваивания 
+  IntArray(const IntArray & rhs);
+  IntArray & operator=(const IntArray & rhs); 
   IntArray (IntArray && rhs);
   IntArray & operator=(IntArray && rhs);
 };
 
-int main()
-{
-  int next = 0;
-  std::cin >> next;
-  try {
-    IntArray a(next);
-    while (std::cin >> next)
-    {
-      a.add(next);
+struct IntMatrix {
+  IntArray* rows;
+  size_t rowCount;
+  size_t colCount;
+
+  IntMatrix(size_t rows, size_t cols) : rowCount(rows), colCount(cols) {
+    this->rows = new IntArray[rowCount];
+    for (size_t i = 0; i < rowCount; ++i) {
+      this->rows[i] = IntArray(0);
+      for (size_t j = 0; j < colCount; ++j) {
+        this->rows[i].add(0);
+      }
     }
-    if (std::cin.fail() && !std::cin.eof())
-    {
-      return 1;
-    }
-    size_t count = 1;
-    for (size_t i = 0; i < a.getSize() - 1; ++i)
-    {
-      int d = a.get(i);
-      count += !(d % a.last());
-    }
-    std::cout << count << "\n";
   }
-  catch (const std::bad_alloc()) {
-    return 2;
+
+  ~IntMatrix() {
+    delete[] rows;
   }
-  return 0;
-}
+
+  void setValue(size_t row, size_t col, int value) {
+    if (row < rowCount && col < colCount) {
+      rows[row].a[col] = value;
+    }
+  }
+
+  int getValue(size_t row, size_t col) const {
+    if (row < rowCount && col < colCount) {
+      return rows[row].get(col);
+    }
+    return 0;
+  }
+
+  void print() const {
+    for (size_t i = 0; i < rowCount; ++i) {
+      for (size_t j = 0; j < colCount; ++j) {
+        std::cout << getValue(i, j) << " ";
+      }
+      std::cout << std::endl;
+    }
+  }
+
+  void addRowAfter(size_t afterRow, int fillValue) {
+    if (afterRow > rowCount) return;
+
+    IntArray* newRows = new IntArray[rowCount + 1];
+    size_t newIndex = 0;
+
+    for (size_t i = 0; i < rowCount; ++i) {
+      newRows[newIndex++] = rows[i];
+      if (i == afterRow) {
+        IntArray newRow(0);
+        for (size_t j = 0; j < colCount; ++j) {
+          newRow.add(fillValue);
+        }
+        newRows[newIndex++] = newRow;
+      }
+    }
+
+    if (afterRow == 0) {
+      IntArray newRow(0);
+      for (size_t j = 0; j < colCount; ++j) {
+        newRow.add(fillValue);
+      }
+      IntArray* temp = newRows;
+      newRows = new IntArray[rowCount + 1];
+      newRows[0] = newRow;
+      for (size_t i = 0; i < rowCount; ++i) {
+        newRows[i + 1] = temp[i];
+      }
+      delete[] temp;
+    }
+
+    delete[] rows;
+    rows = newRows;
+    rowCount++;
+  }
+
+  void addRowAndColumnAfter(size_t afterRow, size_t afterCol) {
+    addRowAfter(afterRow, 0);
+
+    for (size_t i = 0; i < rowCount; ++i) {
+      IntArray newRow(0);
+      for (size_t j = 0; j < colCount; ++j) {
+        if (j == afterCol) {
+          newRow.add(0);
+        }
+        newRow.add(rows[i].get(j));
+      }
+      if (afterCol == 0) {
+        newRow.add(0);
+        for (size_t j = 0; j < colCount; ++j) {
+          newRow.add(rows[i].get(j));
+        }
+      }
+      rows[i] = newRow;
+    }
+    colCount++;
+  }
+};
 
 IntArray::~IntArray() {
   delete[] a;
