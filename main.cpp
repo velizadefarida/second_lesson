@@ -199,6 +199,15 @@ IntArray & IntArray::operator=(IntArray && rhs)
   return * this;
 }
 
+int IntArray::at(size_t id) const
+{
+    if (id < size)
+    {
+        return a[id];
+    }
+    throw std::out_of_range("Index out of range");
+}
+
 int main(int argc, char* argv[]) {
   if (argc != 2) {
     return 1;
