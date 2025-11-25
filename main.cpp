@@ -6,10 +6,11 @@ struct IntArray {
   size_t getSize() const noexcept;
   int last() const noexcept;
   IntArray(int i);
+  IntArray();
   ~IntArray();
   int * a;
   size_t size;
-  int at(size_t id()) const;
+  int at(size_t id) const;
   IntArray(const IntArray & rhs);
   IntArray & operator=(const IntArray & rhs); 
   IntArray (IntArray && rhs);
@@ -115,6 +116,11 @@ struct IntMatrix {
     colCount++;
   }
 };
+
+IntArray::IntArray() :
+  a(new int(0)),
+  size(0)
+{}
 
 IntArray::~IntArray() {
   delete[] a;
